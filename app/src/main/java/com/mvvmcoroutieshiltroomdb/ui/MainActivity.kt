@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ import com.mvvmcoroutieshiltroomdb.interfaces.OnUser
 import com.mvvmcoroutieshiltroomdb.models.User
 import com.mvvmcoroutieshiltroomdb.view_models.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -53,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
                 if (isValidInputs()) {
 
-                    userViewModel.viewModelScope.launch {
+                    lifecycleScope.launch {
 
                         if (btnAddOrUpdate.text.toString().trim() == getString(R.string.add)) {
 
@@ -63,6 +65,8 @@ class MainActivity : AppCompatActivity() {
                             )
 
                             userViewModel.insert(user)
+
+//                            saveData()
 
                         } else {
 
@@ -85,6 +89,18 @@ class MainActivity : AppCompatActivity() {
             }
 
             btnCancel.setOnClickListener { reset() }
+
+        }
+
+    }
+
+    private fun saveData() {
+
+        for (i in 1..1000) {
+
+            val user = User(name = "Name $i", age = i)
+
+            lifecycleScope.launch { userViewModel.insert(user) }
 
         }
 
@@ -139,11 +155,21 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        userViewModel.getUsers().observe(this) {
+        lifecycleScope.launch {
 
-            userAdapter.submitList(it.toMutableList())
+            userViewModel.usersPaging.collectLatest {
+
+                userAdapter.submitData(it)
+
+            }
 
         }
+
+        /*userViewModel.getUsers().observe(this) {
+
+            userAdapter.submitList(it)
+
+        }*/
 
     }
 

@@ -1,6 +1,8 @@
 package com.mvvmcoroutieshiltroomdb.db
 
 import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.*
 import com.mvvmcoroutieshiltroomdb.models.User
 
@@ -17,6 +19,6 @@ interface UserDao {
     suspend fun delete(user: User): Int
 
     @Query("SELECT * FROM user_tbl")
-    fun getUsers(): LiveData<List<User>>
+    fun getUsersPaging(): PagingSource<Int, User>
 
 }

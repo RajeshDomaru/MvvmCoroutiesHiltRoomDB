@@ -1,6 +1,10 @@
 package com.mvvmcoroutieshiltroomdb.view_models
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.mvvmcoroutieshiltroomdb.models.User
 import com.mvvmcoroutieshiltroomdb.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +19,14 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
 
     suspend fun delete(user: User) = userRepository.delete(user)
 
-    fun getUsers() = userRepository.getUsers()
-
+    val usersPaging
+        get() = Pager(
+            config = PagingConfig(
+                pageSize = 5,
+                enablePlaceholders = false,
+                initialLoadSize = 5
+            )
+        ) {
+            userRepository.getUsersPaging()
+        }.flow.cachedIn(viewModelScope)
 }
